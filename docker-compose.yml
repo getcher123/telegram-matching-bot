@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: tg-market-watch
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./var:/app/var
+      - ./config:/app/config:ro
+      - ./telegram-sessions:/app/var/telegram
+    env_file:
+      - .env
+    environment:
+      - TG_MARKET_WATCH_CONFIG=/app/config/watch.yaml
+      - TG_MARKET_WATCH_DATA_DIR=/app/var
+    restart: unless-stopped

@@ -16,6 +16,7 @@ from app.config.compiler import (
 )
 from app.config.hashing import compute_config_hash
 from app.config.models import RootConfig
+from app.core.models import ConfigVersion
 
 logger = logging.getLogger(__name__)
 
@@ -91,8 +92,27 @@ class ConfigService:
         return self._active
 
     @property
+    def compiled(self) -> CompiledConfig | None:
+        return self._active
+
+    @property
     def raw(self) -> RootConfig | None:
         return self._raw
+
+    def version_info(self) -> ConfigVersion:
+        """Return config version info for status endpoint."""
+        if self._active:
+            enabled = sum(1 for r in self._active.rules if r.enabled)
+            return ConfigVersion(
+                config_hash=self._active.config_hash,
+                version=self._active.version,
+                enabled_rules_count=enabled,
+            )
+        return ConfigVersion(config_hash="", version=0)
+
+    def load(self) -> CompiledConfig:
+        """Load and compile config. Raises on failure."""
+        return self._load()
 
     def load_initial(self) -> CompiledConfig:
         """Load and compile config on startup. Raises on failure."""

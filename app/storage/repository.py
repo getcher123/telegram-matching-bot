@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -75,6 +77,79 @@ class AlertRepository:
         stmt = select(func.count(AlertOrm.id))
         result = await self._session.execute(stmt)
         return result.scalar() or 0
+
+
+class Repository:
+    """High-level repository combining low-level repos with pipeline methods."""
+
+    def __init__(self, uow: UnitOfWork) -> None:
+        self._uow = uow
+
+    async def is_duplicate(self, normalized_text: str) -> bool:
+        """Check if normalized text hash already exists."""
+        text_hash = hashlib.sha256(normalized_text.encode("utf-8")).hexdigest()
+        stmt = select(MessageOrm).where(MessageOrm.normalized_hash == text_hash).limit(1)
+        result = await self._uow.session.execute(stmt)
+        return result.scalar_one_or_none() is not None
+
+    async def find_by_normalized_hash(self, text_hash: str) -> int | None:
+        """Find existing message by normalized hash."""
+        stmt = select(MessageOrm.telegram_message_id).where(
+            MessageOrm.normalized_hash == text_hash
+        ).limit(1)
+        result = await self._uow.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def save_normalized_hash(self, text_hash: str) -> None:
+        """Record a normalized hash for dedup tracking."""
+        msg = MessageOrm(
+            telegram_message_id=0,
+            chat_peer="__dedup_index__",
+            raw_text="",
+            normalized_text="",
+            normalized_hash=text_hash,
+        )
+        self._uow.session.add(msg)
+        await self._uow.commit()
+
+    async def save_raw_message(
+        self,
+        message_id: int,
+        chat_id: str,
+        raw_text: str,
+        normalized_text: str,
+    ) -> int:
+        """Save a raw message and return its DB id."""
+        msg = MessageOrm(
+            telegram_message_id=message_id,
+            chat_peer=chat_id,
+            raw_text=raw_text,
+            normalized_text=normalized_text,
+            normalized_hash=hashlib.sha256(normalized_text.encode("utf-8")).hexdigest(),
+        )
+        self._uow.session.add(msg)
+        await self._uow.commit()
+        return msg.id
+
+    async def save_alert_decision(
+        self,
+        message_id: int,
+        chat_id: str,
+        rule_id: str,
+        score: float,
+        evidence: list[dict],
+    ) -> int:
+        """Save a match decision."""
+        match = MatchOrm(
+            telegram_message_id=message_id,
+            chat_peer=chat_id,
+            rule_id=rule_id,
+            score=score,
+            evidence_json=str(evidence) if evidence else "[]",
+        )
+        self._uow.session.add(match)
+        await self._uow.commit()
+        return match.id
 
 
 class UnitOfWork:
