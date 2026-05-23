@@ -1,0 +1,274 @@
+version: 1
+
+app:
+  name: "tg-market-watch"
+  environment: "local"
+  timezone: "Asia/Tbilisi"
+  admin_api_token_env: "ADMIN_API_TOKEN"
+  data_dir: "./var"
+  log_level: "INFO"
+
+telegram:
+  session_file: "./var/telegram/session.marketwatch"
+  api_id_env: "TG_API_ID"
+  api_hash_env: "TG_API_HASH"
+  phone_env: "TG_PHONE"
+  connect_timeout_seconds: 20
+  request_timeout_seconds: 30
+  sequential_updates: true
+  process_new_messages: true
+  process_edited_messages: true
+  ignore_outgoing_messages: true
+  monitored_chats:
+    - title: "Пример чата"
+      peer: "@example_chat"
+      enabled: false
+  alert_targets:
+    - title: "Основной получатель"
+      peer: "market_alerts_receiver"
+      enabled: true
+  alert_message:
+    include_original_text: true
+    include_normalized_excerpt: true
+    include_evidence: true
+    include_forwarded_message_when_link_unavailable: true
+    max_original_text_chars: 900
+
+storage:
+  driver: sqlite
+  sqlite_path: "./var/db/tg_market_watch.sqlite3"
+  retention_days_messages: 30
+  retention_days_matches: 180
+  store_full_text: true
+  store_sender_id: true
+
+catch_up:
+  enabled: true
+  interval_seconds: 120
+  messages_per_chat_limit: 80
+
+normalization:
+  unicode_nfkc: true
+  lowercase: true
+  replace_yo_with_e: true
+  remove_zero_width_chars: true
+  normalize_quotes: true
+  normalize_dashes: true
+  normalize_currency: true
+  fix_mixed_cyrillic_latin_for_known_terms: true
+  fix_keyboard_layout_for_known_terms: true
+  transliterate_known_product_terms: true
+  collapse_repeated_spaces: true
+  max_edit_distance_for_dictionary_terms: 1
+  use_edit_distance_only_for_terms_min_length: 5
+  token_window_for_context: 8
+
+engine:
+  deterministic: true
+  default_rule_threshold: 100
+  global_reject_if_any_intent:
+    - "buy"
+    - "repair"
+    - "review"
+    - "rent"
+    - "wanted"
+  deduplicate_alerts: true
+  duplicate_text_fingerprint_window_hours: 24
+  alert_rate_limit_per_minute: 20
+  dry_run: false
+
+dictionaries:
+  groups:
+    - canonical: "sale"
+      terms:
+        - "продам"
+        - "продаю"
+        - "продается"
+        - "продаётся"
+        - "в продаже"
+        - "отдам"
+        - "уступлю"
+        - "есть в наличии"
+        - "в наличии"
+        - "sell"
+        - "selling"
+    - canonical: "buy"
+      terms:
+        - "куплю"
+        - "покупаю"
+        - "ищу"
+        - "нужен"
+        - "нужна"
+        - "нужно"
+        - "приобрету"
+        - "рассмотрю покупку"
+        - "wanted"
+    - canonical: "tv"
+      terms:
+        - "телевизор"
+        - "телек"
+        - "телик"
+        - "тв"
+        - "tv"
+        - "smart tv"
+        - "смарт тв"
+        - "oled"
+        - "qled"
+        - "led tv"
+        - "плазма"
+    - canonical: "macbook"
+      terms:
+        - "macbook"
+        - "mac book"
+        - "макбук"
+        - "мак book"
+        - "mbp"
+        - "macbook pro"
+        - "макбук про"
+        - "макбук pro"
+    - canonical: "airpods"
+      terms:
+        - "airpods"
+        - "air pods"
+        - "air-pods"
+        - "эйрподс"
+        - "аирподс"
+        - "эйр pods"
+        - "наушники apple"
+        - "apple airpods"
+    - canonical: "m4_pro"
+      terms:
+        - "m4 pro"
+        - "m4pro"
+        - "m4-pro"
+        - "м4 pro"
+        - "м4 про"
+        - "эм четыре про"
+    - canonical: "m4_max"
+      terms:
+        - "m4 max"
+        - "m4max"
+        - "м4 max"
+        - "м4 макс"
+    - canonical: "airpods_pro"
+      terms:
+        - "airpods pro"
+        - "air pods pro"
+        - "эйрподс про"
+        - "аирподс про"
+    - canonical: "airpods_gen2"
+      terms:
+        - "2"
+        - "2nd"
+        - "second generation"
+        - "2 поколение"
+        - "второе поколение"
+        - "gen 2"
+        - "generation 2"
+    - canonical: "fake"
+      terms:
+        - "копия"
+        - "реплика"
+        - "не оригинал"
+        - "паль"
+        - "люкс копия"
+        - "mastercopy"
+    - canonical: "accessory"
+      terms:
+        - "чехол"
+        - "кабель"
+        - "коробка"
+        - "амбушюры"
+        - "зарядка"
+        - "пульт"
+        - "кронштейн"
+        - "подставка"
+    - canonical: "repair"
+      terms:
+        - "ремонт"
+        - "починю"
+        - "чиню"
+        - "запчасти"
+        - "разбор"
+        - "донор"
+
+rules:
+  - id: "tv_50_plus_sale"
+    title: "Телевизор 50+ дюймов"
+    enabled: true
+    priority: "high"
+    threshold: 100
+    require_intent_any:
+      - "sale"
+    reject_intent_any:
+      - "buy"
+      - "repair"
+      - "review"
+      - "rent"
+    require_dictionary_any:
+      - "tv"
+    reject_dictionary_any:
+      - "accessory"
+    numeric_constraints:
+      - entity: "diagonal_inches"
+        operator: ">="
+        value: 50
+        required: true
+        context_dictionary_any:
+          - "tv"
+        context_window_tokens: 10
+    evidence_weights:
+      sale: 30
+      tv: 40
+      diagonal_inches: 40
+    alert_template_id: "default_market_match"
+
+  - id: "macbook_m4_pro_sale"
+    title: "MacBook с чипом M4 Pro"
+    enabled: true
+    priority: "high"
+    threshold: 100
+    require_intent_any:
+      - "sale"
+    reject_intent_any:
+      - "buy"
+      - "repair"
+      - "review"
+      - "rent"
+    require_dictionary_all:
+      - "macbook"
+      - "m4_pro"
+    reject_dictionary_any:
+      - "m4_max"
+      - "accessory"
+    evidence_weights:
+      sale: 30
+      macbook: 40
+      m4_pro: 50
+    alert_template_id: "default_market_match"
+
+  - id: "airpods_pro_2_sale"
+    title: "AirPods Pro 2"
+    enabled: true
+    priority: "medium"
+    threshold: 100
+    require_intent_any:
+      - "sale"
+    reject_intent_any:
+      - "buy"
+      - "repair"
+      - "review"
+      - "rent"
+    require_dictionary_all:
+      - "airpods"
+      - "airpods_pro"
+      - "airpods_gen2"
+    reject_dictionary_any:
+      - "fake"
+      - "accessory"
+    evidence_weights:
+      sale: 30
+      airpods: 30
+      airpods_pro: 30
+      airpods_gen2: 40
+    alert_template_id: "default_market_match"
