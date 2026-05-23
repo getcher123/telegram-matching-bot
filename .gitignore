@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+.venv/
+venv/
+.venv_*/
+*.so
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Telegram session
+*.session
+*.session-journal
+var/telegram/*.session
+var/telegram/*.session-journal
+
+# Codex
+.codex/auth.json
+.codex/*.json
+
+# Runtime artifacts
+orchestrator/runs/*/codex_events.jsonl
+orchestrator/runs/*/codex_stderr.log
+orchestrator/runs/*/review_stderr.log
+orchestrator/runs/*/rework_stderr.log
+orchestrator/runs/*/verification.log
+
+# Worktrees
+worktrees/
+
+# Database
+*.sqlite3
+var/db/*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# Logs
+*.log
