@@ -1,0 +1,27 @@
+config_version: "2026-05-23.invalid.missing-alert-target"
+project: "tg-market-watch"
+timezone: "Asia/Tbilisi"
+language: "ru"
+telegram:
+  session_name: "tg_market_watch_test_session"
+  api_id_env: "TG_API_ID"
+  api_hash_env: "TG_API_HASH"
+  phone_env: "TG_PHONE"
+  allowed_chats:
+    - id: -1001111000001
+      username: "market_msk"
+      title: "Барахолка Москва"
+      enabled: true
+alerts:
+  parse_mode: "markdown_safe"
+normalization:
+  lowercase: true
+rules:
+  - id: "airpods_pro_2_sale"
+    title: "AirPods Pro 2"
+    enabled: true
+    require:
+      intent: "sale"
+      category: "airpods"
+      line: "pro"
+      generation: "gen2"

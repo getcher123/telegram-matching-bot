@@ -1,0 +1,160 @@
+cases:
+  - id: "MSG-TV-001"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 101
+    date: "2026-05-23T09:00:01+04:00"
+    text: "Продам телевизор Samsung 55 дюймов, 35000 ₽"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "MATCH"
+      minimum_evidence:
+        intent: "sale"
+        diagonal_inches: 55.0
+
+  - id: "MSG-TV-003"
+    chat_id: -1001111000002
+    chat_username: "spb_sell_ru"
+    message_id: 103
+    date: "2026-05-23T09:00:03+04:00"
+    text: "Sony Bravia 127 см, цена 42000 руб, самовывоз"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "NO_MATCH"
+      reject_reason: "Numeric failed"
+
+  - id: "MSG-TV-005"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 105
+    date: "2026-05-23T09:00:05+04:00"
+    text: "Продам телевизор Xiaomi 49 дюймов"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "NO_MATCH"
+      reject_reason: "failed"
+
+  - id: "MSG-TV-008"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 108
+    date: "2026-05-23T09:00:08+04:00"
+    text: "Куплю телевизор 65 дюймов Samsung"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "REJECTED_BY_NEGATIVE"
+      reject_reason: "buy"
+
+  - id: "MSG-TV-009"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 109
+    date: "2026-05-23T09:00:09+04:00"
+    text: "Ремонт телевизоров 55 дюймов, выезд мастера"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "NO_MATCH"
+      reject_reason: "Required intent not found"
+
+  - id: "MSG-TV-010"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 110
+    date: "2026-05-23T09:00:10+04:00"
+    text: "Продам кронштейн для телевизора 55 дюймов"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "REJECTED_BY_NEGATIVE"
+      reject_reason: "accessory"
+
+  - id: "MSG-TV-011"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 111
+    date: "2026-05-23T09:00:11+04:00"
+    text: "Samsung 50 QLED, 30000 руб, без торга"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "NO_MATCH"
+      reject_reason: "Required intent not found"
+
+  - id: "MSG-TV-015"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 115
+    date: "2026-05-23T09:00:15+04:00"
+    text: "Прoдaм тeлевизар TCL 5O дюймов"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "NO_MATCH"
+      reject_reason: "Numeric failed"
+
+  - id: "MSG-TV-018"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 118
+    date: "2026-05-23T09:00:18+04:00"
+    text: "Продам телевизор Philips диагональ 55, 27000"
+    expected:
+      rule_id: "tv_50_plus_sale"
+      status: "NO_MATCH"
+      reject_reason: "Numeric failed"
+
+  - id: "MSG-MB-003"
+    chat_id: -1001111000002
+    chat_username: "spb_sell_ru"
+    message_id: 203
+    date: "2026-05-23T10:00:03+04:00"
+    text: "Mac Book Pro с М4 Про, цена 220000 руб"
+    expected:
+      rule_id: "macbook_m4_pro_sale"
+      status: "MATCH"
+      minimum_evidence:
+        intent: "sale"
+        price:
+          amount: 220000
+          currency: "rub"
+
+  - id: "MSG-MB-005"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 205
+    date: "2026-05-23T10:00:05+04:00"
+    text: "Куплю MacBook M4 Pro 14"
+    expected:
+      rule_id: "macbook_m4_pro_sale"
+      status: "REJECTED_BY_NEGATIVE"
+      reject_reason: "buy"
+
+  - id: "MSG-AP-002"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 302
+    date: "2026-05-23T11:00:02+04:00"
+    text: "AirPods Pro 2nd generation, 13000 руб"
+    expected:
+      rule_id: "airpods_pro_2_sale"
+      status: "NO_MATCH"
+      reject_reason: "Required intent not found"
+
+  - id: "MSG-AP-005"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 305
+    date: "2026-05-23T11:00:05+04:00"
+    text: "AirPods Pro 2, 13к, оригинал"
+    expected:
+      rule_id: "airpods_pro_2_sale"
+      status: "NO_MATCH"
+      reject_reason: "Required intent not found"
+
+  - id: "MSG-AP-012"
+    chat_id: -1001111000001
+    chat_username: "market_msk"
+    message_id: 312
+    date: "2026-05-23T11:00:12+04:00"
+    text: "Куплю AirPods Pro 2"
+    expected:
+      rule_id: "airpods_pro_2_sale"
+      status: "REJECTED_BY_NEGATIVE"
+      reject_reason: "buy"

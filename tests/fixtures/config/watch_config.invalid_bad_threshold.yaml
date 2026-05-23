@@ -1,0 +1,26 @@
+config_version: "2026-05-23.invalid.bad-threshold"
+project: "tg-market-watch"
+timezone: "Asia/Tbilisi"
+language: "ru"
+telegram:
+  session_name: "tg_market_watch_test_session"
+  api_id_env: "TG_API_ID"
+  api_hash_env: "TG_API_HASH"
+  phone_env: "TG_PHONE"
+  allowed_chats:
+    - id: -1001111000001
+      username: "market_msk"
+      title: "Барахолка Москва"
+      enabled: true
+alerts:
+  target_user_id: 700000001
+normalization:
+  lowercase: true
+rules:
+  - id: "tv_bad_threshold"
+    title: "Некорректный порог диагонали"
+    enabled: true
+    require:
+      intent: "sale"
+      diagonal_inches:
+        gte: -10.0

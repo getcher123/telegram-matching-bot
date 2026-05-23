@@ -1,0 +1,127 @@
+cases:
+  - id: "ENT-TV-001"
+    text: "Продам телевизор Samsung 55 дюймов, 35000 ₽"
+    expected:
+      intent: "sale"
+      price:
+        amount: 35000
+        currency: "rub"
+      diagonal_inches: 55.0
+
+  - id: "ENT-TV-002"
+    text: "Телик LG 127 см, цена 30000 руб"
+    expected:
+      intent: "sale"
+      price:
+        amount: 30000
+        currency: "rub"
+
+  - id: "ENT-TV-003"
+    text: "Куплю телевизор Sony 65 дюймов"
+    expected:
+      intent: "buy"
+      diagonal_inches: 65.0
+
+  - id: "ENT-TV-004"
+    text: "Кронштейн для телевизора 55 дюймов, новый"
+    expected:
+      intent: ""
+      diagonal_inches: 55.0
+      negatives: ["accessory"]
+
+  - id: "ENT-TV-005"
+    text: "Продам Samsung 55 QLED, 50000"
+    expected:
+      intent: "sale"
+
+  - id: "ENT-TV-006"
+    text: "Продам монитор 55 дюймов"
+    expected:
+      intent: "sale"
+      diagonal_inches: 55.0
+
+  - id: "ENT-MB-001"
+    text: "Продам MacBook Pro 14 M4 Pro 24/512"
+    expected:
+      intent: "sale"
+
+  - id: "ENT-MB-002"
+    text: "Продается макбук м4про 16 дюймов"
+    expected:
+      intent: "sale"
+      diagonal_inches: 16.0
+
+  - id: "ENT-MB-003"
+    text: "MacBook Pro M4, 16/512, 180000 руб"
+    expected:
+      intent: ""
+      price:
+        amount: 180000
+        currency: "rub"
+
+  - id: "ENT-MB-004"
+    text: "Продам Mac mini M4 Pro"
+    expected:
+      intent: "sale"
+
+  - id: "ENT-MB-005"
+    text: "Чехол для MacBook M4 Pro"
+    expected:
+      intent: ""
+      negatives: ["accessory"]
+
+  - id: "ENT-MB-006"
+    text: "Ремонт MacBook M4 Pro, диагностика"
+    expected:
+      intent: "repair"
+
+  - id: "ENT-AP-001"
+    text: "Продам AirPods Pro 2 USB-C, оригинал"
+    expected:
+      intent: "sale"
+
+  - id: "ENT-AP-002"
+    text: "Аирподс Про второе поколение, 13000 руб"
+    expected:
+      intent: ""
+      price:
+        amount: 13000
+        currency: "rub"
+
+  - id: "ENT-AP-003"
+    text: "AirPods 2, новые"
+    expected:
+      intent: ""
+
+  - id: "ENT-AP-004"
+    text: "Копия AirPods Pro 2, 1:1"
+    expected:
+      intent: ""
+      negatives: ["fake"]
+
+  - id: "ENT-AP-005"
+    text: "Левый наушник AirPods Pro 2"
+    expected:
+      intent: ""
+
+  - id: "ENT-AP-006"
+    text: "Чехол для AirPods Pro 2"
+    expected:
+      intent: ""
+      negatives: ["accessory"]
+
+  - id: "ENT-CROSS-001"
+    text: "Продам телевизор 55 и AirPods Pro 2"
+    expected:
+      intent: "sale"
+
+  - id: "ENT-CROSS-002"
+    text: "Продам MacBook M4 Pro с чехлом"
+    expected:
+      intent: "sale"
+
+  - id: "ENT-CROSS-003"
+    text: "Продам чехол и коробку от MacBook M4 Pro"
+    expected:
+      intent: "sale"
+      negatives: ["accessory"]

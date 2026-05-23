@@ -86,7 +86,23 @@ def evaluate_rule(
                 )
                 return decision
 
-    # 3. require_intent_any
+    # 3. reject_intent_any — check BEFORE require so buy/repair/etc is caught first
+    if rule.reject_intent_any:
+        all_ints = set(entities.intents.all_intents + entities.intents.reject_intents)
+        matched = all_ints & rule.reject_intent_any
+        if matched:
+            decision.decision = "REJECTED_BY_NEGATIVE"
+            for intent in matched:
+                decision.evidence.append(
+                    EvidenceItem(
+                        category="reject_intent",
+                        detail=f"Reject: {intent}",
+                        weight=0,
+                    )
+                )
+            return decision
+
+    # 4. require_intent_any
     if rule.require_intent_any:
         matched = set(entities.intents.all_intents) & rule.require_intent_any
         if not matched:
@@ -107,21 +123,6 @@ def evaluate_rule(
             decision.evidence.append(
                 EvidenceItem(category="intent", detail=f"Intent: {intent}", weight=30)
             )
-
-    # 4. reject_intent_any
-    if rule.reject_intent_any:
-        matched = set(entities.intents.reject_intents) & rule.reject_intent_any
-        if matched:
-            decision.decision = "REJECTED_BY_NEGATIVE"
-            for intent in matched:
-                decision.evidence.append(
-                    EvidenceItem(
-                        category="reject_intent",
-                        detail=f"Reject: {intent}",
-                        weight=0,
-                    )
-                )
-            return decision
 
     # 5. require_dictionary_any
     if rule.require_dictionary_any:
