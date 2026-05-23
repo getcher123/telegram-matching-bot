@@ -31,6 +31,7 @@ class MessageOrm(Base):
         DateTime(timezone=True), server_default=func.now()
     )
     text_hash: Mapped[str] = mapped_column(String(64), index=True, default="")
+    normalized_hash: Mapped[str] = mapped_column(String(64), index=True, default="")
 
     matches = relationship("MatchOrm", back_populates="message", cascade="all, delete-orphan")
 

@@ -29,8 +29,8 @@ async def lifespan(app: FastAPI):
     # ── Init ConfigService ──
     try:
         state.config_service = ConfigService()
-        cfg = state.config_service.load()
-        state.config_version = cfg.version_info()
+        state.config_service.load()
+        state.config_version = state.config_service.version_info()
         state.component_status["config"] = "ok"
         logger.info("Config loaded: hash=%s", state.config_version.config_hash)
     except Exception:

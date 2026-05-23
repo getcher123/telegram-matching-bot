@@ -14,6 +14,7 @@ class AppSettings(BaseSettings):
     )
 
     api_key: str = "dev-secret"
+    admin_api_token: str | None = "dev-secret"
     api_key_header: str = "Authorization"
 
     tg_phone: str = ""
