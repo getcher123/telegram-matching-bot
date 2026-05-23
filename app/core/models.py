@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any
 
 
-class DecisionStatus(str, Enum):
+class DecisionStatus(str, Enum):  # noqa: UP042 — StrEnum not available on all Python 3.11
     MATCH = "MATCH"
     NO_MATCH = "NO_MATCH"
     REJECTED_BY_NEGATIVE = "REJECTED_BY_NEGATIVE"

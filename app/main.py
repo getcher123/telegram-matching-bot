@@ -1,4 +1,4 @@
-"""FastAPI application entrypoint."""
+"""FastAPI application with full lifespan and routing."""
 
 from __future__ import annotations
 
@@ -6,20 +6,19 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.core.models import ConfigVersion
+from app.api.routes import auth, health, status
+from app.core.app_state import AppState
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Application lifespan: startup and shutdown."""
     # Startup
-    app.state.config_version = ConfigVersion(
-        config_hash="",
-        version=0,
-        rules_count=0,
-        enabled_rules_count=0,
-    )
+    app.state.app_state = AppState()
+    app.state.app_state.component_status["app"] = "starting"
     yield
     # Shutdown
+    app.state.app_state.component_status["app"] = "stopped"
 
 
 app = FastAPI(
@@ -28,7 +27,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Include routers
+app.include_router(health.router)
+app.include_router(status.router)
+app.include_router(auth.router)
 
-@app.get("/health")
-async def health():
-    return {"status": "ok", "app": "tg-market-watch"}
+
+@app.get("/")
+async def root():
+    return {"app": "tg-market-watch", "docs": "/docs"}
