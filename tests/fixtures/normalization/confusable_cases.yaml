@@ -1,0 +1,25 @@
+cases:
+- id: CONF-001
+  input: MасВооk M4 Рrо
+  expected_text: macbook m4 pro
+  expected_canonical_tokens: [macbook, m4, pro]
+- id: CONF-002
+  input: АirРods Рro 2
+  expected_text: airpods pro 2
+  expected_canonical_tokens: [airpods, pro, '2']
+- id: CONF-003
+  input: ТV Sоny Brаvia 55
+  expected_text: tv sony bravia 55
+  expected_canonical_tokens: [tv, sony, bravia, '55']
+- id: CONF-004
+  input: теlevизор sаmsung 55 дюймов
+  expected_text: телевизор samsung 55 дюймов
+  expected_canonical_tokens: [телевизор, samsung, '55', дюймов]
+- id: CONF-005
+  input: продам мaкбук м4 прo
+  expected_text: продам макбук м4 про
+  expected_canonical_tokens: [продам, макбук, м4, про]
+- id: CONF-006
+  input: aирпoдс прo2
+  expected_text: airpods про 2
+  expected_canonical_tokens: [airpods, про, '2']

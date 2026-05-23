@@ -1,0 +1,125 @@
+cases:
+- id: NORM-001
+  input: Продам Телевизор Samsung 55 ДЮЙМОВ
+  expected_text: продам телевизор samsung 55 дюймов
+  expected_tokens: [продам, телевизор, samsung, '55', дюймов]
+- id: NORM-002
+  input: Продаётся тeлeвизор LG 50"
+  expected_text: продается телевизор lg 50"
+  expected_tokens: [продается, телевизор, lg, 50"]
+- id: NORM-003
+  input: ПРОДАМ ТЕЛИК Sony Bravia 127см
+  expected_text: продам телик sony bravia 127см
+  expected_tokens: [продам, телик, sony, bravia, 127см]
+- id: NORM-004
+  input: Продам OLED—ТВ 65'', цена 90 000₽
+  expected_text: продам олеd-тв 65'', цена 90000 rub
+  expected_tokens: [продам, олеd-тв, '65'''',', цена, '90000', rub]
+- id: NORM-005
+  input: Прoдaм MacВook M4 Рro
+  expected_text: продам macbook m4 pro
+  expected_tokens: [продам, macbook, m4, pro]
+- id: NORM-006
+  input: Продам мак бук м4про
+  expected_text: продам макбук м4 про
+  expected_tokens: [продам, макбук, м4, про]
+- id: NORM-007
+  input: Air Pods Pro2, 13к
+  expected_text: airpods pro 2, 13000
+  expected_tokens: [airpods, pro, '2,', '13000']
+- id: NORM-008
+  input: Аир подс Про 2 — оригинал
+  expected_text: airpods про 2 - оригинал
+  expected_tokens: [airpods, про, '2', '-', оригинал]
+- id: NORM-009
+  input: телевизар TCL 5O дюймов
+  expected_text: телевизор tcl 5o дюймов
+  expected_tokens: [телевизор, tcl, 5o, дюймов]
+- id: NORM-010
+  input: Продам ТВ 50+
+  expected_text: продам тв 50+
+  expected_tokens: [продам, тв, 50+]
+- id: NORM-011
+  input: цена 35к руб
+  expected_text: цена 35000 руб
+  expected_tokens: [цена, '35000', руб]
+- id: NORM-012
+  input: за 1 200$ отдам
+  expected_text: за 1200 usd отдам
+  expected_tokens: [за, '1200', usd, отдам]
+- id: NORM-013
+  input: Продаю AirPods​Pro‍2
+  expected_text: продаю airpodspro2
+  expected_tokens: [продаю, airpodspro2]
+- id: NORM-014
+  input: MacBook_pro/M4-Pro
+  expected_text: macbook_pro/m4-pro
+  expected_tokens: [macbook_pro/m4-pro]
+- id: NORM-015
+  input: Продам телевизор 55д
+  expected_text: продам телевизор 55д
+  expected_tokens: [продам, телевизор, 55д]
+- id: NORM-016
+  input: Продам телевизор 127сантиметров
+  expected_text: продам телевизор 127сантиметров
+  expected_tokens: [продам, телевизор, 127сантиметров]
+- id: NORM-017
+  input: Продается MacBook М4 Рrо
+  expected_text: продается macbook м4 pro
+  expected_tokens: [продается, macbook, м4, pro]
+- id: NORM-018
+  input: AIRPODS PRO 2ND GENERATION
+  expected_text: airpods pro 2nd generation
+  expected_tokens: [airpods, pro, 2nd, generation]
+- id: NORM-019
+  input: Прoдaм тeлик Sаmsung 55
+  expected_text: продам телик samsung 55
+  expected_tokens: [продам, телик, samsung, '55']
+- id: NORM-020
+  input: Не продаю MacBook M4 Pro
+  expected_text: не продаю macbook m4 pro
+  expected_tokens: [не, продаю, macbook, m4, pro]
+- id: NORM-021
+  input: Ремонт AirPods Pro 2
+  expected_text: ремонт airpods pro 2
+  expected_tokens: [ремонт, airpods, pro, '2']
+- id: NORM-022
+  input: Чехол для AirPods Pro 2
+  expected_text: чехол для airpods pro 2
+  expected_tokens: [чехол, для, airpods, pro, '2']
+- id: NORM-023
+  input: Кронштейн для телевизора 55 дюймов
+  expected_text: кронштейн для телевизора 55 дюймов
+  expected_tokens: [кронштейн, для, телевизора, '55', дюймов]
+- id: NORM-024
+  input: Продам MacBook M4Pro
+  expected_text: продам macbook m4 pro
+  expected_tokens: [продам, macbook, m4, pro]
+- id: NORM-025
+  input: Продаю ЭйрПодс Про второе поколение
+  expected_text: продаю airpods про второе поколение
+  expected_tokens: [продаю, airpods, про, второе, поколение]
+- id: NORM-026
+  input: Продам телевизор Xiaomi 50-inch
+  expected_text: продам телевизор xiaomi 50-inch
+  expected_tokens: [продам, телевизор, xiaomi, 50-inch]
+- id: NORM-027
+  input: Продам телевизор 49.5 дюйма
+  expected_text: продам телевизор 49.5 дюйма
+  expected_tokens: [продам, телевизор, '49.5', дюйма]
+- id: NORM-028
+  input: Продам TV 50 in
+  expected_text: продам tv 50 in
+  expected_tokens: [продам, tv, '50', in]
+- id: NORM-029
+  input: 'Продажа: MacBook
+
+    M4 Pro
+
+    256GB'
+  expected_text: 'продажа: macbook m4 pro 256gb'
+  expected_tokens: ['продажа:', macbook, m4, pro, 256gb]
+- id: NORM-030
+  input: AirPods Pro II
+  expected_text: airpods pro 2
+  expected_tokens: [airpods, pro, '2']

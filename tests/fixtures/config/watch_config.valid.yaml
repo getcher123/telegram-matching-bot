@@ -1,0 +1,403 @@
+config_version: "2026-05-23.mvp-fixtures.1"
+project: "tg-market-watch"
+timezone: "Asia/Tbilisi"
+language: "ru"
+
+telegram:
+  session_name: "tg_market_watch_test_session"
+  api_id_env: "TG_API_ID"
+  api_hash_env: "TG_API_HASH"
+  phone_env: "TG_PHONE"
+  listen_edited_messages: true
+  catch_up_on_start: false
+  max_catch_up_messages_per_chat: 200
+  allowed_chats:
+    - id: -1001111000001
+      username: "market_msk"
+      title: "Барахолка Москва"
+      enabled: true
+    - id: -1001111000002
+      username: "spb_sell_ru"
+      title: "Купи продай СПб"
+      enabled: true
+    - id: -1001111000003
+      username: null
+      title: "Закрытая барахолка электроники"
+      enabled: true
+    - id: -1001111000004
+      username: "repair_only_ru"
+      title: "Ремонт техники"
+      enabled: false
+
+alerts:
+  target_user_id: 700000001
+  target_username: "qa_alert_receiver"
+  parse_mode: "markdown_safe"
+  disable_web_page_preview: true
+  throttle:
+    max_alerts_per_minute: 20
+    max_alerts_per_chat_per_minute: 8
+  retry:
+    attempts: 3
+    base_delay_ms: 250
+    max_delay_ms: 3000
+
+storage:
+  driver: "sqlite"
+  database_url: "sqlite+aiosqlite:///./var/tg_market_watch_test.sqlite3"
+  keep_raw_messages_days: 30
+  keep_decisions_days: 90
+
+normalization:
+  unicode_form: "NFKC"
+  lowercase: true
+  replace_yo: true
+  strip_zero_width: true
+  collapse_spaces: true
+  normalize_currency: true
+  normalize_quotes: true
+  normalize_dash: true
+  max_message_length_chars: 12000
+  token_joiners:
+    - "-"
+    - "_"
+    - "/"
+  zero_width_chars:
+    - "\u200b"
+    - "\u200c"
+    - "\u200d"
+    - "\ufeff"
+  latin_to_cyrillic_confusables:
+    a: "\u0430"
+    c: "\u0441"
+    e: "\u0435"
+    k: "\u043a"
+    m: "\u043c"
+    o: "\u043e"
+    p: "\u0440"
+    t: "\u0442"
+    x: "\u0445"
+    y: "\u0443"
+  cyrillic_to_latin_confusables:
+    "\u0430": "a"
+    "\u0441": "c"
+    "\u0435": "e"
+    "\u043a": "k"
+    "\u043c": "m"
+    "\u043e": "o"
+    "\u0440": "p"
+    "\u0442": "t"
+    "\u0445": "x"
+    "\u0443": "y"
+  known_latin_tokens:
+    - "airpods"
+    - "air"
+    - "pods"
+    - "macbook"
+    - "mac"
+    - "book"
+    - "m4"
+    - "pro"
+    - "oled"
+    - "qled"
+    - "uhd"
+    - "mini-led"
+    - "bravia"
+    - "samsung"
+    - "lg"
+    - "sony"
+    - "tcl"
+    - "hisense"
+    - "xiaomi"
+    - "philips"
+  typo_corrections:
+    "телевизар": "телевизор"
+    "теливизор": "телевизор"
+    "телвизор": "телевизор"
+    "макбуук": "макбук"
+    "мак бук": "макбук"
+    "аирподс": "airpods"
+    "эйрподс": "airpods"
+    "айрподс": "airpods"
+    "аир подс": "airpods"
+    "air pods": "airpods"
+    "m4pro": "m4 pro"
+    "м4про": "м4 про"
+    "pro2": "pro 2"
+    "про2": "про 2"
+
+units:
+  inch_aliases:
+    - "дюйм"
+    - "дюйма"
+    - "дюймов"
+    - "д"
+    - "inch"
+    - "inches"
+    - "in"
+    - "\""
+  cm_aliases:
+    - "см"
+    - "сантиметр"
+    - "сантиметра"
+    - "сантиметров"
+  currency_aliases:
+    rub:
+      - "₽"
+      - "руб"
+      - "р"
+      - "rub"
+      - "рублей"
+    usd:
+      - "$"
+      - "usd"
+      - "доллар"
+      - "долларов"
+    gel:
+      - "gel"
+      - "лари"
+      - "₾"
+
+intent_dictionary:
+  sale_positive:
+    - "продам"
+    - "продаю"
+    - "продается"
+    - "продажа"
+    - "в продаже"
+    - "отдам за"
+    - "уступлю"
+    - "цена"
+    - "за"
+    - "торг"
+    - "торг уместен"
+  buy_negative:
+    - "куплю"
+    - "купим"
+    - "ищу"
+    - "нужен"
+    - "нужна"
+    - "нужно"
+    - "подскажите где купить"
+    - "кто продает"
+  service_negative:
+    - "ремонт"
+    - "починю"
+    - "чиню"
+    - "диагностика"
+    - "мастерская"
+    - "сервис"
+    - "замена"
+    - "настройка"
+  unavailable_negative:
+    - "продано"
+    - "уже продано"
+    - "бронь"
+    - "в резерве"
+    - "резерв"
+    - "не продаю"
+    - "не продажа"
+  exchange_terms:
+    - "обмен"
+    - "обменяю"
+    - "поменяю"
+
+negative_dictionary:
+  accessory_terms:
+    - "чехол"
+    - "кейс"
+    - "коробка"
+    - "кабель"
+    - "зарядка"
+    - "блок питания"
+    - "адаптер"
+    - "кронштейн"
+    - "пульт"
+    - "клавиатура"
+    - "наклейка"
+    - "пленка"
+    - "защитное стекло"
+  part_terms:
+    - "левый наушник"
+    - "правый наушник"
+    - "один наушник"
+    - "дисплей"
+    - "матрица"
+    - "плата"
+    - "запчасти"
+    - "на запчасти"
+    - "донор"
+  fake_terms:
+    - "копия"
+    - "реплика"
+    - "аналог"
+    - "не оригинал"
+    - "неоригинал"
+    - "1:1"
+    - "люкс копия"
+    - "premium copy"
+
+product_dictionary:
+  tv:
+    category_id: "tv"
+    canonical_name: "телевизор"
+    aliases:
+      - "телевизор"
+      - "телик"
+      - "телевизер"
+      - "тв"
+      - "tv"
+      - "smart tv"
+      - "смарт тв"
+      - "oled"
+      - "qled"
+      - "uhd tv"
+      - "bravia"
+    brands:
+      - "samsung"
+      - "lg"
+      - "sony"
+      - "tcl"
+      - "hisense"
+      - "xiaomi"
+      - "philips"
+      - "haier"
+      - "panasonic"
+  macbook:
+    category_id: "macbook"
+    canonical_name: "macbook"
+    aliases:
+      - "macbook"
+      - "mac book"
+      - "макбук"
+      - "мак бук"
+      - "мак"
+    line_aliases:
+      pro:
+        - "pro"
+        - "про"
+      air:
+        - "air"
+        - "эйр"
+    chip_aliases:
+      m4_pro:
+        - "m4 pro"
+        - "m4pro"
+        - "м4 про"
+        - "м4про"
+        - "m 4 pro"
+        - "м 4 про"
+      m4:
+        - "m4"
+        - "м4"
+      m3_pro:
+        - "m3 pro"
+        - "м3 про"
+  airpods:
+    category_id: "airpods"
+    canonical_name: "airpods"
+    aliases:
+      - "airpods"
+      - "air pods"
+      - "аирподс"
+      - "эйрподс"
+      - "айрподс"
+      - "аир подс"
+    line_aliases:
+      pro:
+        - "pro"
+        - "про"
+    generation_aliases:
+      gen2:
+        - "2"
+        - "2nd"
+        - "second generation"
+        - "2 generation"
+        - "2 gen"
+        - "gen 2"
+        - "2 поколение"
+        - "второе поколение"
+        - "pro 2"
+        - "про 2"
+      gen1:
+        - "1"
+        - "1st"
+        - "первое поколение"
+
+rules:
+  - id: "tv_50_plus_sale"
+    title: "Продажа телевизора 50+ дюймов"
+    enabled: true
+    scope:
+      chat_ids:
+        - -1001111000001
+        - -1001111000002
+        - -1001111000003
+    require:
+      intent: "sale"
+      category: "tv"
+      diagonal_inches:
+        gte: 50.0
+    reject_if:
+      intents:
+        - "buy"
+        - "service"
+        - "unavailable"
+      fake: true
+      accessory_only: true
+      part_only: true
+    alert:
+      severity: "normal"
+      title: "Телевизор 50+ дюймов"
+
+  - id: "macbook_m4_pro_sale"
+    title: "Продажа MacBook с M4 Pro"
+    enabled: true
+    scope:
+      chat_ids:
+        - -1001111000001
+        - -1001111000002
+        - -1001111000003
+    require:
+      intent: "sale"
+      category: "macbook"
+      chip: "m4_pro"
+    reject_if:
+      intents:
+        - "buy"
+        - "service"
+        - "unavailable"
+      fake: true
+      accessory_only: true
+      part_only: true
+      product_families:
+        - "mac_mini"
+        - "ipad"
+    alert:
+      severity: "high"
+      title: "MacBook M4 Pro"
+
+  - id: "airpods_pro_2_sale"
+    title: "Продажа AirPods Pro 2"
+    enabled: true
+    scope:
+      chat_ids:
+        - -1001111000001
+        - -1001111000002
+        - -1001111000003
+    require:
+      intent: "sale"
+      category: "airpods"
+      line: "pro"
+      generation: "gen2"
+    reject_if:
+      intents:
+        - "buy"
+        - "service"
+        - "unavailable"
+      fake: true
+      accessory_only: true
+      part_only: true
+    alert:
+      severity: "normal"
+      title: "AirPods Pro 2"

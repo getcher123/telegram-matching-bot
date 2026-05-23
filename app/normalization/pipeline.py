@@ -47,107 +47,52 @@ CURRENCY_MAP = str.maketrans(
     }
 )
 
-# Cyrillic / Latin confusables (common swapped letters)
-MIXED_CYRILLIC_LATIN = str.maketrans(
+# Cyrillic → Latin confusables for known Latin tokens
+CYRILLIC_TO_LATIN_CONFUSABLES = str.maketrans(
     {
-        "a": "а",  # Latin a → Cyrillic а
-        "e": "е",  # Latin e → Cyrillic е
-        "o": "о",  # Latin o → Cyrillic о
-        "c": "с",  # Latin c → Cyrillic с
-        "p": "р",  # Latin p → Cyrillic р
-        "x": "х",  # Latin x → Cyrillic х
-        "y": "у",  # Latin y → Cyrillic у
-        "A": "А",
-        "B": "В",
-        "C": "С",
-        "E": "Е",
-        "H": "Н",
-        "K": "К",
-        "M": "М",
-        "O": "О",
-        "P": "Р",
-        "T": "Т",
-        "X": "Х",
-        "Y": "У",
+        "а": "a",
+        "с": "c",
+        "е": "e",
+        "к": "k",
+        "м": "m",
+        "о": "o",
+        "р": "p",
+        "т": "t",
+        "х": "x",
+        "у": "y",
+        "в": "b",
+        "н": "h",
     }
 )
 
-# Latin → Cyrillic keyboard layout flip (for typos like 'ghbdtn' → 'привет')
-LAYOUT_LATIN_TO_CYRILLIC = str.maketrans(
-    {
-        "q": "й",
-        "w": "ц",
-        "e": "у",
-        "r": "к",
-        "t": "е",
-        "y": "н",
-        "u": "г",
-        "i": "ш",
-        "o": "щ",
-        "p": "з",
-        "[": "х",
-        "]": "ъ",
-        "a": "ф",
-        "s": "ы",
-        "d": "в",
-        "f": "а",
-        "g": "п",
-        "h": "р",
-        "j": "о",
-        "k": "л",
-        "l": "д",
-        ";": "ж",
-        "'": "э",
-        "z": "я",
-        "x": "ч",
-        "c": "с",
-        "v": "м",
-        "b": "и",
-        "n": "т",
-        "m": "ь",
-        ",": "б",
-        ".": "ю",
-    }
-)
+# Known Latin tokens that when seen with Cyrillic confusables should be fixed
+KNOWN_LATIN_TOKENS = frozenset({
+    "airpods", "air", "pods",
+    "macbook", "mac", "book",
+    "m4", "m4pro", "pro",
+    "oled", "qled", "uhd", "mini-led",
+    "bravia", "samsung", "lg", "sony", "tcl",
+    "hisense", "xiaomi", "philips", "haier", "panasonic",
+    "apple", "inch", "inches", "usb", "usb-c", "type-c",
+    "gb", "tb", "ssd", "ram", "cpu", "gpu",
+    "tv",
+})
 
-# Known product terms where transliteration is safe
-PRODUCT_TRANSLIT_MAP = {
-    "macbook": "макбук",
-    "airpods": "эйрподс",
-    "iphone": "айфон",
-    "ipad": "айпад",
-    "imac": "аймак",
-    "watch": "вотч",
-    "samsung": "самсунг",
-    "xiaomi": "сяоми",
-    "huawei": "хуавей",
-    "honor": "хонор",
-    "lenovo": "леново",
-    "dell": "делл",
-    "hp": "эйч пи",
-    "apple": "эппл",
-    "asus": "асус",
-    "acer": "асер",
-    "msi": "эмэс ай",
-    "gigabyte": "гигабайт",
-    "playstation": "плейстейшен",
-    "play station": "плейстейшен",
-    "xbox": "иксбокс",
-    "nintendo": "нинтендо",
-    "switch": "свитч",
-    "sony": "сони",
-    "canon": "канон",
-    "nikon": " nik on",
-    "lg": "эл джи",
-    "jbl": "джей би эл",
-    "logitech": "лоджитек",
-    "razer": "рейзер",
-    "steelseries": "стил сериес",
-    "hyperx": "гипер икс",
+# Typo corrections for common misspellings
+TYPO_CORRECTIONS = {
+    "телевизар": "телевизор",
+    "теливизор": "телевизор",
+    "телвизор": "телевизор",
+    "макбуук": "макбук",
+    "мак бук": "макбук",
+    "аирподс": "airpods",
+    "эйрподс": "airpods",
+    "айрподс": "airpods",
+    "аир подс": "airpods",
+    "air pods": "airpods",
 }
 
-# Regular expression to tokenize
-TOKEN_RE = re.compile(r"")
+NON_ALPHA_RE = re.compile(r"[^a-zа-яё0-9]+")
 
 
 class NormalizationConfig:
@@ -162,9 +107,7 @@ class NormalizationConfig:
         normalize_quotes: bool = True,
         normalize_dashes: bool = True,
         normalize_currency: bool = True,
-        fix_mixed_cyrillic_latin_for_known_terms: bool = True,
-        fix_keyboard_layout_for_known_terms: bool = False,
-        transliterate_known_product_terms: bool = True,
+        fix_confusable_scripts: bool = True,
         collapse_repeated_spaces: bool = True,
         max_edit_distance_for_dictionary_terms: int = 1,
         use_edit_distance_only_for_terms_min_length: int = 5,
@@ -177,9 +120,7 @@ class NormalizationConfig:
         self.normalize_quotes = normalize_quotes
         self.normalize_dashes = normalize_dashes
         self.normalize_currency = normalize_currency
-        self.fix_mixed_cyrillic_latin_for_known_terms = fix_mixed_cyrillic_latin_for_known_terms
-        self.fix_keyboard_layout_for_known_terms = fix_keyboard_layout_for_known_terms
-        self.transliterate_known_product_terms = transliterate_known_product_terms
+        self.fix_confusable_scripts = fix_confusable_scripts
         self.collapse_repeated_spaces = collapse_repeated_spaces
         self.max_edit_distance_for_dictionary_terms = max_edit_distance_for_dictionary_terms
         self.use_edit_distance_only_for_terms_min_length = (
@@ -221,48 +162,126 @@ def normalize_text(text: str, config: NormalizationConfig | None = None) -> str:
     if cfg.replace_yo_with_e:
         result = result.replace("ё", "е")
 
-    # Step 8: Transliterate known product terms
-    if cfg.transliterate_known_product_terms:
-        result = _transliterate_known(result)
+    # Step 8: Newlines → spaces
+    result = result.replace("\n", " ")
+    result = result.replace("\r", " ")
 
-    # Step 9: Fix keyboard layout — only for purely Latin text (no Cyrillic present)
-    if cfg.fix_keyboard_layout_for_known_terms and _is_pure_latin(result):
-        result = _fix_keyboard_layout(result)
+    # Step 9: Expand "к" shorthand for thousands (35к → 35000)
+    result = re.sub(r"(\d+)\s*к\b", lambda m: str(int(m.group(1)) * 1000), result)
 
-    # Step 10: Fix mixed Cyrillic/Latin — only if text has some Cyrillic
-    if cfg.fix_mixed_cyrillic_latin_for_known_terms and not _is_pure_latin(result):
-        result = _fix_mixed_script(result)
+    # Step 10: Fix confusable scripts — per-token Cyrillic ↔ Latin normalization
+    if cfg.fix_confusable_scripts:
+        result = _fix_token_scripts(result)
 
-    # Step 11: Collapse spaces
+    # Step 11: Apply typo corrections
+    result = _apply_typo_corrections(result)
+
+    # Step 12: Remove commas between digits (1 200 → 1200)
+    result = re.sub(r"(\d)\s+(\d)", lambda m: m.group(1) + m.group(2), result)
+
+    # Step 13: Compound splitting (m4pro → m4 pro, pro2 → pro 2)
+    result = re.sub(
+        r"\b(m4pro|м4про)\b",
+        lambda m: {"m4pro": "m4 pro", "м4про": "м4 про"}.get(m.group(1), m.group(1)),
+        result,
+        flags=re.IGNORECASE,
+    )
+    result = re.sub(
+        r"\b(pro2|про2)\b",
+        lambda m: {"pro2": "pro 2", "про2": "про 2"}.get(m.group(1), m.group(1)),
+        result,
+        flags=re.IGNORECASE,
+    )
+
+    # Step 14: Roman numeral II → 2 (case-insensitive)
+    result = re.sub(r"\bii\b", "2", result)
+
+    # Step 15: Collapse spaces
     if cfg.collapse_repeated_spaces:
         result = re.sub(r"\s+", " ", result).strip()
 
     return result
 
 
-def _fix_mixed_script(text: str) -> str:
-    """Replace latin-looking letters with cyrillic equivalents for common substitute patterns."""
-    return text.translate(MIXED_CYRILLIC_LATIN)
+def _has_cyrillic(text: str) -> bool:
+    """Check if text contains any Cyrillic letters."""
+    return any("Ѐ" <= c <= "ӿ" or "Ԁ" <= c <= "ԯ" for c in text)
 
 
-def _fix_keyboard_layout(text: str) -> str:
-    """Convert text typed in wrong keyboard layout back to intended cyrillic."""
+def _has_latin(text: str) -> bool:
+    """Check if text contains any Latin letters."""
+    return any("a" <= c <= "z" for c in text)
+
+
+def _is_pure_latin(text: str) -> bool:
+    """Check if text contains only Latin letters (no Cyrillic at all)."""
+    return not _has_cyrillic(text)
+
+
+def _fix_token_scripts(text: str) -> str:
+    """Fix confusable scripts per-token.
+
+    - Tokens with MIXED Cyrillic+Latin: normalize to Cyrillic (stray Latin → Cyrillic)
+    - Tokens where Cyrillic→Latin produces a known token: convert to Latin
+    - Pure Latin tokens: leave as-is
+    - Pure Cyrillic tokens: leave as-is (typo corrections handle misspellings)
+    """
+    tokens = text.split()
+    result = []
+    for token in tokens:
+        # Strip trailing punctuation for matching, keep original
+        cleaned = token.rstrip(",.!?;:()[]{}\"'")
+        punct = token[len(cleaned):]
+
+        if not _has_cyrillic(cleaned):
+            # Pure Latin — keep as-is
+            result.append(token)
+            continue
+
+        if not _has_latin(cleaned):
+            # Pure Cyrillic — keep as-is
+            result.append(token)
+            continue
+
+        # Mixed script: try Cyrillic→Latin conversion first
+        latinized = _cyrillic_to_latin_for_known(cleaned)
+        if latinized in KNOWN_LATIN_TOKENS:
+            result.append(latinized + punct)
+            continue
+
+        # Not a known token — normalize stray Latin → Cyrillic
+        # Only convert Latin letters that have Cyrillic lookalikes
+        cyrillified = _latin_to_cyrillic_in_token(cleaned)
+        result.append(cyrillified + punct)
+
+    return " ".join(result)
+
+
+def _cyrillic_to_latin_for_known(text: str) -> str:
+    """Convert Cyrillic confusables to Latin."""
+    return text.translate(CYRILLIC_TO_LATIN_CONFUSABLES)
+
+
+def _latin_to_cyrillic_in_token(text: str) -> str:
+    """Convert Latin letters in a mixed-script token to Cyrillic."""
+    # Only convert letters that have direct Cyrillic counterparts
+    mapping = {
+        "a": "а", "c": "с", "e": "е", "k": "к", "m": "м",
+        "o": "о", "p": "р", "t": "т", "x": "х", "y": "у",
+        "b": "в", "h": "н",
+        "l": "л", "i": "и", "v": "в",
+    }
     result = []
     for char in text:
-        if "a" <= char <= "z":
-            cyrillic = char.translate(LAYOUT_LATIN_TO_CYRILLIC)
-            result.append(cyrillic)
-        else:
-            result.append(char)
+        result.append(mapping.get(char, char))
     return "".join(result)
 
 
-def _transliterate_known(text: str) -> str:
-    """Apply known product transliterations."""
+def _apply_typo_corrections(text: str) -> str:
+    """Apply known typo corrections."""
     result = text
-    for latin, cyrillic in PRODUCT_TRANSLIT_MAP.items():
-        # Replace whole words only (not substrings)
-        result = re.sub(rf"\b{re.escape(latin)}\b", cyrillic, result)
+    for wrong, correct in TYPO_CORRECTIONS.items():
+        result = re.sub(rf"\b{re.escape(wrong)}\b", correct, result)
     return result
 
 
@@ -315,8 +334,3 @@ def is_latin_heavy(text: str) -> bool:
         return False
     latin_count = sum(1 for c in letters if "a" <= c <= "z" or "A" <= c <= "Z")
     return latin_count / len(letters) > 0.6
-
-
-def _is_pure_latin(text: str) -> bool:
-    """Check if text contains only Latin letters (no Cyrillic at all)."""
-    return all(not ("\u0400" <= c <= "\u04ff" or "\u0500" <= c <= "\u052f") for c in text)

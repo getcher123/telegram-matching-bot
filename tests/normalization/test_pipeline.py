@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from app.normalization.pipeline import (
-    PRODUCT_TRANSLIT_MAP,
+    KNOWN_LATIN_TOKENS,
+    extract_digit_words,
     is_latin_heavy,
     levenshtein_distance,
     normalize_text,
@@ -21,7 +22,6 @@ def test_lowercase():
     """BL-0401: Lowercase."""
     result = normalize_text("Продам MacBook Pro")
     assert "продам" in result
-    assert "macbook" not in result or "macbook" in result.lower()
 
 
 def test_yo_to_e():
@@ -57,25 +57,13 @@ def test_currency_normalization():
 
 def test_mixed_cyrillic_latin():
     """BL-0402: Исправление смешанной кириллицы/латиницы."""
-    # 'тeлeвизoр' with Latin e and o
     result = normalize_text("тeлeвизoр")
     assert "телевизор" in result
 
 
-def test_keyboard_layout_fix():
-    """BL-0402: Исправление раскладки клавиатуры (opt-in)."""
-    from app.normalization.pipeline import NormalizationConfig
-    cfg = NormalizationConfig(fix_keyboard_layout_for_known_terms=True)
-    result = normalize_text("Ghbdtn vfibyf", cfg)
-    # After layout fix: привет машина
-    assert "привет" in result
-    assert "машина" in result or "машину" in result
-
-
 def test_collapse_spaces():
-    """BL-0401: Multiple spaces collapsed (with known transliteration)."""
+    """BL-0401: Multiple spaces collapsed."""
     result = normalize_text("продам   macbook   pro")
-    # macbook → макбук via transliteration, pro → рrо via mixed-script fix
     assert "продам" in result
     assert "  " not in result
 
@@ -107,22 +95,18 @@ def test_normalize_full_pipeline_example():
     """Integration: полный пайплайн на примере."""
     raw = "Продам MacBook Pro M4 Pro 14 дюймов, цена 2000\u20bd"
     result = normalize_text(raw)
-    # Lowercased
     assert "продам" in result
-    # Currency
     assert "rub" in result or "2000" in result
-    # No em-dash
     assert "\u2014" not in result
 
 
 def test_digit_extraction_basic():
     """BL-0404: Извлечение цифр и чисел."""
-    from app.normalization.pipeline import extract_digit_words
     result = extract_digit_words("продам iphone 15 pro max за 120000 руб")
     assert "15" in result
     assert "120000" in result
 
 
-def test_transliteration_map_includes_macbook():
-    """BL-0404: Известные термины содержат макбук."""
-    assert "macbook" in PRODUCT_TRANSLIT_MAP
+def test_known_latin_tokens_has_macbook():
+    """Known tokens include macbook."""
+    assert "macbook" in KNOWN_LATIN_TOKENS
