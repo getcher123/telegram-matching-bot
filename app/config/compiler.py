@@ -32,8 +32,8 @@ class CompiledRule:
     id: str
     title: str
     enabled: bool
-    priority: str
-    threshold: int
+    threshold: int = 100
+    priority: str = "medium"
     require_intent_any: frozenset[str] = field(default_factory=frozenset)
     reject_intent_any: frozenset[str] = field(default_factory=frozenset)
     require_dictionary_any: frozenset[str] = field(default_factory=frozenset)
