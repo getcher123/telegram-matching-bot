@@ -5,11 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.alerts.dispatcher import AlertDispatcher
 from app.config.loader import ConfigService
 from app.core.models import ConfigVersion
 from app.engine.pipeline import ProcessingPipeline
 from app.storage.database import DatabaseManager
 from app.storage.repository import Repository
+from app.telegram.client import TelethonClientService
 
 
 @dataclass
@@ -30,3 +32,5 @@ class AppState:
     database: DatabaseManager | None = None
     repository: Repository | None = None
     pipeline: ProcessingPipeline | None = None
+    telegram_client: TelethonClientService | None = None
+    alert_dispatcher: AlertDispatcher | None = None

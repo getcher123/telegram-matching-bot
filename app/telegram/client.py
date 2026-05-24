@@ -14,6 +14,7 @@ from telethon.errors import (
     PhoneCodeInvalidError,
     SessionPasswordNeededError,
 )
+from telethon.events import NewMessage
 from telethon.tl.types import Message
 
 from app.telegram.client_state import ClientStatus
@@ -78,26 +79,27 @@ class TelethonClientService:
         if session_path:
             os.makedirs(session_path, exist_ok=True)
 
-    async def _handle_new_message(self, event: Message) -> None:
+    async def _handle_new_message(self, event: NewMessage.Event) -> None:
         """Handle an incoming new/edited message."""
-        if self._ignore_outgoing and event.out:
+        message = event.message
+        if self._ignore_outgoing and message.out:
             return
 
         if self.on_message:
-            chat_peer = await self._resolve_chat_peer(event)
-            await self.on_message(event, chat_peer)
+            chat_peer = await self._resolve_chat_peer(message)
+            await self.on_message(message, chat_peer)
 
-    async def _resolve_chat_peer(self, event: Message) -> str:
+    async def _resolve_chat_peer(self, msg: Message) -> str:
         """Resolve chat peer identifier."""
         try:
-            sender = await event.get_chat()
+            sender = await msg.get_chat()
             if hasattr(sender, "username") and sender.username:
                 return f"@{sender.username}"
             if hasattr(sender, "id"):
                 return str(sender.id)
         except Exception:
-            logger.debug("Could not resolve chat peer for message %s", event.id)
-        return str(event.chat_id)
+            logger.debug("Could not resolve chat peer for message %s", msg.id)
+        return str(msg.chat_id)
 
     async def start(self) -> None:
         """Start the Telethon client: connect and authorize."""
@@ -116,7 +118,7 @@ class TelethonClientService:
         self._status = ClientStatus.CONNECTING
 
         try:
-            await self._client.connect(timeout=self._connect_timeout)
+            await self._client.connect()
             self._status = ClientStatus.CONNECTED
         except Exception:
             self._status = ClientStatus.ERROR
@@ -134,7 +136,7 @@ class TelethonClientService:
 
         # Register event handlers
         if self._process_new_messages:
-            self._client.on(Message)(self._handle_new_message)
+            self._client.on(NewMessage)(self._handle_new_message)
 
     async def send_code(self) -> None:
         """Request login code from Telegram."""
@@ -186,6 +188,27 @@ class TelethonClientService:
         await self._authorization_event.wait()
         logger.info("Telethon client entering update loop")
         await self._client.run_until_disconnected()
+
+    async def send_message(self, text: str, chat_id: str | None = None) -> bool:
+        """Send a message to a chat.
+
+        Implements the AlertSender protocol.
+        If chat_id is None, sends to the first configured alert target.
+        """
+        if self._client is None:
+            logger.error("Cannot send message: client not started")
+            return False
+        if self._status != ClientStatus.AUTHORIZED:
+            logger.error("Cannot send message: client not authorized")
+            return False
+
+        target = chat_id or self._phone
+        try:
+            await self._client.send_message(target, text)
+            return True
+        except Exception:
+            logger.exception("Failed to send message to %s", target)
+            return False
 
     async def stop(self) -> None:
         """Disconnect the Telethon client."""

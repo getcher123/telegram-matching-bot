@@ -40,9 +40,10 @@ orchestrator/runs/*/verification.log
 # Worktrees
 worktrees/
 
-# Database
+# Database and runtime data
 *.sqlite3
 var/db/*.sqlite3
+var/data/
 
 # OS
 .DS_Store

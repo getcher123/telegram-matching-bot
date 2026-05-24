@@ -20,12 +20,15 @@ telegram:
   process_edited_messages: true
   ignore_outgoing_messages: true
   monitored_chats:
-    - title: "Пример чата"
-      peer: "@example_chat"
-      enabled: false
+    - title: "Барахолка Грузия"
+      peer: "@baraholka_ge"
+      enabled: true
+    - title: "Батуми Барахолка"
+      peer: "@batumy_baraholka"
+      enabled: true
   alert_targets:
     - title: "Основной получатель"
-      peer: "market_alerts_receiver"
+      peer: "@getcher"
       enabled: true
   alert_message:
     include_original_text: true
