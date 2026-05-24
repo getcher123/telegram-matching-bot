@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import hashlib
 
 from sqlalchemy import func, select
@@ -118,6 +119,7 @@ class Repository:
         chat_id: str,
         raw_text: str,
         normalized_text: str,
+        message_timestamp: datetime.datetime | None = None,
     ) -> int:
         """Save a raw message and return its DB id."""
         msg = MessageOrm(
@@ -125,6 +127,7 @@ class Repository:
             chat_peer=chat_id,
             raw_text=raw_text,
             normalized_text=normalized_text,
+            message_timestamp=message_timestamp or datetime.datetime.now(datetime.timezone.utc),
             normalized_hash=hashlib.sha256(normalized_text.encode("utf-8")).hexdigest(),
         )
         self._uow.session.add(msg)

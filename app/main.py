@@ -92,7 +92,19 @@ async def lifespan(app: FastAPI):
 
         # Wire pipeline into Telegram message handler
         if state.pipeline:
+            # Build set of monitored chat peers for fast lookup
+            monitored_peers = {
+                mc.peer for mc in state.config_service.raw.telegram.monitored_chats
+                if mc.enabled and mc.peer
+            }
+
             async def handle_message(msg: Message, chat_peer: str) -> None:
+                # Skip if not from a monitored chat
+                if chat_peer not in monitored_peers:
+                    return
+                # Skip messages without text
+                if not msg.text or not msg.text.strip():
+                    return
                 try:
                     result = await state.pipeline.process_message(
                         message_id=msg.id,
@@ -119,6 +131,49 @@ async def lifespan(app: FastAPI):
                     logger.exception("Failed to process message %s", msg.id)
 
             state.telegram_client.on_message = handle_message
+
+        # ── Catch-up: process recent messages from monitored chats ──
+        if state.pipeline and state.config_service.raw:
+            catch_cfg = state.config_service.raw.catch_up
+            if catch_cfg and catch_cfg.enabled:
+                logger.info("Catch-up: processing recent messages from monitored chats")
+                for mc in state.config_service.raw.telegram.monitored_chats:
+                    if not mc.enabled or not mc.peer:
+                        continue
+                    try:
+                        entity = await state.telegram_client._client.get_entity(mc.peer)
+                        msgs = await state.telegram_client._client.get_messages(
+                            entity, limit=catch_cfg.messages_per_chat_limit
+                        )
+                        count = 0
+                        for msg in reversed(msgs):
+                            if not msg.text:
+                                continue
+                            result = await state.pipeline.process_message(
+                                message_id=msg.id,
+                                chat_id=mc.peer,
+                                raw_text=msg.text,
+                            )
+                            state.messages_processed += 1
+                            state.matches_total += result.match_count
+                            if result.match_count > 0 and state.alert_dispatcher:
+                                from app.engine.rules import RuleDecision
+                                decisions = [RuleDecision(
+                                    rule_id=d.rule_id,
+                                    rule_title=d.rule_title or d.rule_id,
+                                    decision="MATCH" if d.is_match else "NOMATCH",
+                                    score=d.score,
+                                    threshold=d.threshold,
+                                ) for d in result.decisions if d.is_match]
+                                ok = await state.alert_dispatcher.dispatch_all(
+                                    decisions, result.raw_text, result.message_link
+                                )
+                                state.alerts_sent += sum(1 for o in ok if o)
+                                state.alerts_failed += sum(1 for o in ok if not o)
+                            count += 1
+                        logger.info("Catch-up: %s → %d messages processed", mc.peer, count)
+                    except Exception:
+                        logger.exception("Catch-up failed for %s", mc.peer)
     else:
         state.alert_dispatcher = AlertDispatcher()
         state.component_status["alerts"] = "pending_auth"
