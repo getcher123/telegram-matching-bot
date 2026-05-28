@@ -176,8 +176,9 @@ def normalize_text(text: str, config: NormalizationConfig | None = None) -> str:
     # Step 11: Apply typo corrections
     result = _apply_typo_corrections(result)
 
-    # Step 12: Remove commas between digits (1 200 → 1200)
-    result = re.sub(r"(\d)\s+(\d)", lambda m: m.group(1) + m.group(2), result)
+    # Step 12: Remove spaces between digits for thousand separators (1 200 → 1200)
+    # Only merge when the second group is exactly 3 digits (thousands separator pattern)
+    result = re.sub(r"(\d)\s+(\d{3})(?!\d)", lambda m: m.group(1) + m.group(2), result)
 
     # Step 13: Compound splitting (m4pro → m4 pro, pro2 → pro 2)
     result = re.sub(

@@ -171,6 +171,9 @@ ENTITY_PATTERNS: dict[str, list[re.Pattern]] = {
     "diagonal_inches": [
         re.compile(r"(\d{2,3}(?:[.,]\d)?)\s*(?:дюйм[аов]*|inch(?:es)?|\"|in)\b", re.IGNORECASE),
         re.compile(r"(\d{2,3}(?:[.,]\d)?)\s*\"\s*(?:дюйм|диагональ)?", re.IGNORECASE),
+        # Catch bare 2-3 digit numbers as potential diagonal_inches
+        # Context filtering (near TV keywords) happens in rules._evaluate_numeric_constraint
+        re.compile(r"\b(\d{2,3}(?:[.,]\d)?)\b"),
     ],
     "storage_gb": [
         re.compile(r"(\d{3,4})\s*(?:гб|gb|гигабайт)\b", re.IGNORECASE),
